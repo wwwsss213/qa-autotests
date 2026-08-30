@@ -1,13 +1,10 @@
-import requests
+import pytest
 
 
-def test_create_user(base_url, user_data):
-    # ARRANGE
-    session = requests.Session()
-    session.trust_env = False
-
+@pytest.mark.api
+def test_create_user(api_client, base_url, user_data):
     # ACT
-    response = session.post(
+    response = api_client.post(
         base_url,
         json=user_data
     )
@@ -23,3 +20,4 @@ def test_create_user(base_url, user_data):
     assert data["is_active"] is True
     assert "id" in data
     assert "created_at" in data
+

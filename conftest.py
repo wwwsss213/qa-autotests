@@ -1,8 +1,11 @@
 import os
 import random
+
 import pytest
 import psycopg2
+import requests
 from dotenv import load_dotenv
+
 
 # Загружаем переменные из .env файла
 load_dotenv()
@@ -10,19 +13,27 @@ load_dotenv()
 
 @pytest.fixture(scope="session")
 def base_url():
-    """Возвращает базовый URL для API из .env"""
+    """Возвращает базовый URL для API из .env."""
     return os.getenv("API_BASE_URL")
 
 
 @pytest.fixture
+def api_client():
+    """Создаёт HTTP-клиент для API-запросов."""
+    session = requests.Session()
+    session.trust_env = False
+    return session
+
+
+@pytest.fixture
 def unique_email():
-    """Генерирует случайный уникальный email для каждого теста"""
+    """Генерирует случайный уникальный email для каждого теста."""
     return f"user{random.randint(10000, 99999)}@example.com"
 
 
 @pytest.fixture
 def user_data(unique_email):
-    """Формирует словарь с данными пользователя для отправки в POST запрос"""
+    """Формирует данные пользователя для POST-запроса."""
     return {
         "name": "Test Test",
         "email": unique_email,
@@ -32,7 +43,7 @@ def user_data(unique_email):
 
 @pytest.fixture(scope="function")
 def db_cursor():
-    """Подключается к PostgreSQL в Docker через доступы из .env.
+    """Подключается к PostgreSQL в Docker через данные из .env.
 
     После завершения теста автоматически закрывает соединение.
     """
@@ -43,12 +54,11 @@ def db_cursor():
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD")
     )
-    # Включаем автокоммит, чтобы изменения в базе (если они будут) сразу сохранялись
+
     connection.autocommit = True
     cursor = connection.cursor()
 
-    yield cursor  # Передаем курсор в тест
+    yield cursor
 
-    # Блок Clean Up (выполняется строго ПОСЛЕ теста)
     cursor.close()
     connection.close()

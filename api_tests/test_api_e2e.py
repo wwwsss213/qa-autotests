@@ -1,15 +1,13 @@
-import requests
+import pytest
 
 
-def test_create_user_and_verify_in_db(base_url, user_data, db_cursor):
+@pytest.mark.e2e
+def test_create_user_and_verify_in_db(api_client, base_url, user_data, db_cursor):
     # ARRANGE
-    session = requests.Session()
-    session.trust_env = False
-
     target_email = user_data["email"]
 
     # ACT
-    response = session.post(
+    response = api_client.post(
         base_url,
         json=user_data
     )
@@ -39,20 +37,23 @@ def test_create_user_and_verify_in_db(base_url, user_data, db_cursor):
     assert db_result[3] is True
 
 
-def test_duplicate_email_not_created_in_db(base_url, user_data, db_cursor):
+@pytest.mark.e2e
+def test_duplicate_email_not_created_in_db(
+        api_client,
+        base_url,
+        user_data,
+        db_cursor
+):
     # ARRANGE
-    session = requests.Session()
-    session.trust_env = False
-
     target_email = user_data["email"]
 
     # ACT
-    first_response = session.post(
+    first_response = api_client.post(
         base_url,
         json=user_data
     )
 
-    second_response = session.post(
+    second_response = api_client.post(
         base_url,
         json=user_data
     )
