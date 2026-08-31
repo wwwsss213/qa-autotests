@@ -1,11 +1,14 @@
 import pytest
 from playwright.sync_api import expect
 
+from tests.ui_tests.pages.goodfon_page import GoodFonPage
+
 
 @pytest.mark.ui
 def test_main_page(page):
     # ARRANGE
-    page.goto("https://www.goodfon.ru")
+    goodfon = GoodFonPage(page)
+    goodfon.open()
 
     # ASSERT
-    expect(page.locator("a.headline__logo__icon")).to_be_visible()
+    expect(goodfon.logo).to_be_visible()

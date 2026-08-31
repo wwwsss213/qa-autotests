@@ -1,14 +1,17 @@
 import pytest
 from playwright.sync_api import expect
 
+from tests.ui_tests.pages.goodfon_page import GoodFonPage
+
 
 @pytest.mark.ui
 def test_login_button(page):
     # ARRANGE
-    page.goto("https://www.goodfon.ru")
+    goodfon = GoodFonPage(page)
+    goodfon.open()
 
     # ACT
-    page.get_by_role("link", name="войти").click()
+    goodfon.click_login()
 
     # ASSERT
     expect(page).to_have_url("https://www.goodfon.ru/auth/signin/")

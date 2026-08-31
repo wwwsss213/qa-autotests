@@ -1,17 +1,17 @@
 import pytest
 from playwright.sync_api import expect
 
+from tests.ui_tests.pages.goodfon_page import GoodFonPage
+
 
 @pytest.mark.ui
 def test_search_wallpaper(page):
     # ARRANGE
-    page.goto("https://www.goodfon.ru")
+    goodfon = GoodFonPage(page)
+    goodfon.open()
 
     # ACT
-    page.locator("input.js-search").fill("машина")
-    page.get_by_role("button", name="Найти").click()
+    goodfon.search("машина")
 
     # ASSERT
-    expect(
-        page.locator("img.wallpapers__item__img").first
-    ).to_be_visible()
+    expect(goodfon.wallpaper).to_be_visible()
