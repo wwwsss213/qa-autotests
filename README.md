@@ -1,14 +1,13 @@
-# API Autotests — Python + Pytest
+# QA Autotests — Python + Pytest
 
-Проект с API-автотестами на Python.
-
-Цель — продемонстрировать подход к автоматизации API: AAA, Pytest fixtures и markers, параметризацию, проверки JSON и взаимодействие с PostgreSQL.
+Проект с автоматизированными тестами API и UI на Python.
 
 ## Стек
 
 * Python
 * Pytest
 * Requests
+* Playwright
 * PostgreSQL
 * psycopg2
 * python-dotenv
@@ -16,42 +15,27 @@
 
 ## Что тестируется
 
-### Positive API tests
+### API
 
-* Создание пользователя — `POST /users`
-* Получение пользователя — `GET /users/{id}`
-* Проверка status code и JSON
-* Граничные значения `age`: `0–130`
-* Валидная длина `name`: `2–100`
-* Валидный формат `email`
+* Создание пользователя
+* Получение пользователя по ID
+* Валидация email, имени и возраста
+* Дубликаты пользователей
+* Проверка HTTP status code и JSON-ответов
+* Проверки граничных значений и классов эквивалентности
 
-### Negative API tests
+### UI
 
-* Дублирующийся email
-* Невалидный email
-* Отсутствующий email
-* Невалидный `age`
-* `age` вне диапазона `0–130`
-* Невалидные типы `age` и `name`
+* Открытие главной страницы GoodFon
+* Проверка элементов страницы
+* Поиск обоев
+* Проверка отображения результатов поиска
 
 ### E2E
 
-Проверяется взаимодействие:
-
-`API → PostgreSQL`
-
-* Создание пользователя и проверка данных в БД
-* Проверка отсутствия дубликата
-
-## Тест-дизайн
-
-Используются:
-
-* классы эквивалентности;
-* граничные значения;
-* positive / negative сценарии;
-* проверка типов данных;
-* параметризация `pytest.mark.parametrize`.
+* Создание пользователя через API
+* Проверка данных в PostgreSQL
+* Проверка отсутствия дубликатов в БД
 
 ## Структура
 
@@ -59,52 +43,41 @@
 my_api_autotests/
 ├── api_tests/
 │   ├── positive_tests/
-│   └── negative_tests/
+│   ├── negative_tests/
+│   └── e2e_tests/
+├── tests/
+│   └── ui_tests/
 ├── conftest.py
 ├── pytest.ini
+├── requirements.txt
 ├── .gitignore
 └── README.md
 ```
 
-## AAA
-
-* **Arrange** — подготовка данных
-* **Act** — запрос к API
-* **Assert** — проверка результата
-
-## Fixtures
-
-* `base_url` — URL API
-* `user_data` — данные пользователя
-* `unique_email` — уникальный email
-* `db_cursor` — подключение к PostgreSQL
-
 ## Запуск
 
+Все тесты:
+
 ```bash
-pip install -r requirements.txt
 pytest -v
 ```
 
-Positive:
+API:
 
 ```bash
-pytest api_tests/positive_tests -v
+pytest -m api -v
 ```
 
-Negative:
+UI:
 
 ```bash
-pytest api_tests/negative_tests -v
+pytest -m ui -v --headed
 ```
 
-## Результат
+E2E:
 
-Текущая версия содержит:
-
-* **16 Positive/E2E прогонов**
-* **9 Negative прогонов**
-
-Все тесты проходят успешно.
+```bash
+pytest -m e2e -v
+```
 
 > `.env`, `venv` и служебные файлы не загружаются в репозиторий благодаря `.gitignore`.
