@@ -1,8 +1,8 @@
 # API Autotests — Python + Pytest
 
-Небольшой учебный проект с API-автотестами на Python.
+Проект с API-автотестами на Python.
 
-Цель проекта — продемонстрировать мой подход к автоматизации тестирования: структура тестов по AAA, использование pytest fixtures и markers, параметризованные SQL-запросы и проверки взаимодействия API с PostgreSQL.
+Цель — продемонстрировать подход к автоматизации API: AAA, Pytest fixtures и markers, параметризацию, проверки JSON и взаимодействие с PostgreSQL.
 
 ## Стек
 
@@ -19,34 +19,47 @@
 ### Positive API tests
 
 * Создание пользователя — `POST /users`
-* Получение пользователя по ID — `GET /users/{id}`
-* Проверка HTTP status code
-* Проверка данных в JSON-ответе
+* Получение пользователя — `GET /users/{id}`
+* Проверка status code и JSON
+* Граничные значения `age`: `0–130`
+* Валидная длина `name`: `2–100`
+* Валидный формат `email`
 
 ### Negative API tests
 
-* Создание пользователя с дублирующимся email
-* Создание пользователя с невалидным email
-* Создание пользователя с невалидным возрастом
-* Получение несуществующего пользователя
+* Дублирующийся email
+* Невалидный email
+* Отсутствующий email
+* Невалидный `age`
+* `age` вне диапазона `0–130`
+* Невалидные типы `age` и `name`
 
-### E2E tests
+### E2E
 
 Проверяется взаимодействие:
 
 `API → PostgreSQL`
 
 * Создание пользователя и проверка данных в БД
-* Проверка отсутствия дубликата пользователя в БД
+* Проверка отсутствия дубликата
 
-## Структура проекта
+## Тест-дизайн
+
+Используются:
+
+* классы эквивалентности;
+* граничные значения;
+* positive / negative сценарии;
+* проверка типов данных;
+* параметризация `pytest.mark.parametrize`.
+
+## Структура
 
 ```text
 my_api_autotests/
 ├── api_tests/
-│   ├── test_api_positive.py
-│   ├── test_api_negative.py
-│   └── test_api_e2e.py
+│   ├── positive_tests/
+│   └── negative_tests/
 ├── conftest.py
 ├── pytest.ini
 ├── .gitignore
@@ -55,70 +68,43 @@ my_api_autotests/
 
 ## AAA
 
-Тесты организованы по принципу AAA:
-
-* **Arrange** — подготовка данных и окружения
-* **Act** — выполнение действия через API
+* **Arrange** — подготовка данных
+* **Act** — запрос к API
 * **Assert** — проверка результата
 
 ## Fixtures
 
-В `conftest.py` находятся общие фикстуры:
-
-* `base_url` — базовый URL API
-* `user_data` — тестовые данные пользователя
-* `unique_email` — генерация уникального email
+* `base_url` — URL API
+* `user_data` — данные пользователя
+* `unique_email` — уникальный email
 * `db_cursor` — подключение к PostgreSQL
 
-## Pytest markers
-
-Для категоризации API-тестов используется marker:
-
-`@pytest.mark.api`
-
-## Запуск тестов
-
-Установить зависимости:
+## Запуск
 
 ```bash
 pip install -r requirements.txt
-```
-
-Запустить все тесты:
-
-```bash
 pytest -v
 ```
 
-Запустить Positive API tests:
+Positive:
 
 ```bash
-pytest api_tests/test_api_positive.py -v
+pytest api_tests/positive_tests -v
 ```
 
-Запустить Negative API tests:
+Negative:
 
 ```bash
-pytest api_tests/test_api_negative.py -v
-```
-
-Запустить E2E tests:
-
-```bash
-pytest api_tests/test_api_e2e.py -v
+pytest api_tests/negative_tests -v
 ```
 
 ## Результат
 
-На текущем этапе проект содержит 8 API-автотестов:
+Текущая версия содержит:
 
-* 2 Positive
-* 4 Negative
-* 2 E2E
+* **16 Positive/E2E прогонов**
+* **9 Negative прогонов**
 
 Все тесты проходят успешно.
 
-> `.env`, виртуальное окружение `venv` и служебные файлы PyCharm/Pytest не загружаются в репозиторий благодаря `.gitignore`.
-
-```
-```
+> `.env`, `venv` и служебные файлы не загружаются в репозиторий благодаря `.gitignore`.

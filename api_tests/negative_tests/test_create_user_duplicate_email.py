@@ -1,3 +1,4 @@
+import pytest
 @pytest.mark.api
 def test_create_user_duplicate_email(api_client, base_url, user_data):
     # ACT
