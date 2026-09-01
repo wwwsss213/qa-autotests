@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.api
-def test_create_user(api_client, base_url, user_data):
+def test_create_user(api_client, base_url, user_data): # Согласно требованиям API, допустимая длина name: 2–100 символов
     # ACT
     response = api_client.post(
         base_url,
